@@ -16,6 +16,10 @@ class No{
         return this.id
     }
 
+    setId(id:number){
+        this.id = id
+    }
+
     getValue():any{
         return this.value
     }
@@ -116,8 +120,21 @@ class TreeAVL{
             return false
         }
 
+        if(id == this.root.getId()){
+            let no = new No(-1, "RootTemporary")
+            no.setLeft(this.root)
+            this.removeNodes(no, id)
+            this.root = no.getLeft()
+            return
+        }
+
+        this.removeNodes(this.root, id)
+    }
+
+    private removeNodes(noRoot:No, id):No{
+
         // searching the node father
-        let father = this.root
+        let father = noRoot
         let no
         while(true){
 
@@ -127,18 +144,13 @@ class TreeAVL{
                 break
             }
 
-            // no is the father. Then continue
+            // not is the father. Then continue
             if(father.getId() >= id){
                 father = father.getLeft()
             } else {
                 father = father.getRight()
             }
         }
-
-        this.removeNodes(father, no)
-    }
-
-    private removeNodes(father:No, no:No){
 
         // if the no not have two children
         if(no.getLeft() == null || no.getRight() == null){
@@ -156,7 +168,23 @@ class TreeAVL{
             }
         }
 
+        let node = this.getNextToRemove(no)
+        no.setId(node.getId())
+        no.setValue(node.getValue())
+
+        this.removeNodes(no, no.getId())
     }
+
+    private getNextToRemove(no:No){
+
+        let node = no.getLeft()
+        while(node.getRight() != null){
+            node = node.getRight()
+        }
+
+        return node
+    }
+
 }
 
 let tree = new TreeAVL()
@@ -169,5 +197,5 @@ tree.insert(new No(5, "Teste"))
 tree.insert(new No(7, "Teste"))
 tree.insert(new No(5.5, "teste"))
 tree.insert(new No(0, "Teste"))
-tree.remove(1)
+tree.remove(4)
 tree.print()

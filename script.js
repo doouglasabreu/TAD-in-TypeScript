@@ -8,6 +8,9 @@ var No = /** @class */ (function () {
     No.prototype.getId = function () {
         return this.id;
     };
+    No.prototype.setId = function (id) {
+        this.id = id;
+    };
     No.prototype.getValue = function () {
         return this.value;
     };
@@ -67,7 +70,7 @@ var TreeAVL = /** @class */ (function () {
             prev.setRight(no);
         }
     };
-    //return false if id not exists in the AVL or No corresponding
+    //return false if id not exists in the AVL or true if exists
     TreeAVL.prototype.contains = function (id) {
         var no = this.root;
         while (no != null) {
@@ -88,14 +91,26 @@ var TreeAVL = /** @class */ (function () {
         if (!this.contains(id)) {
             return false;
         }
+        if (id == this.root.getId()) {
+            var no = new No(-1, "RootTemporary");
+            no.setLeft(this.root);
+            this.removeNodes(no, id);
+            this.root = no.getLeft();
+            return;
+        }
+        this.removeNodes(this.root, id);
+    };
+    TreeAVL.prototype.removeNodes = function (noRoot, id) {
         // searching the node father
-        var father = this.root;
+        var father = noRoot;
         var no;
         while (true) {
+            // is the father?
             if ((father.getLeft() != null && father.getLeft().getId() == id) || (father.getRight() != null && father.getRight().getId() == id)) {
                 no = (father.getLeft() != null && father.getLeft().getId() == id) ? father.getLeft() : father.getRight();
                 break;
             }
+            // not is the father. Then continue
             if (father.getId() >= id) {
                 father = father.getLeft();
             }
@@ -103,13 +118,11 @@ var TreeAVL = /** @class */ (function () {
                 father = father.getRight();
             }
         }
-        console.log("Removendo de ", father.getId(), " o no ", no.getId());
-        this.removeNodes(father, no);
-    };
-    TreeAVL.prototype.removeNodes = function (father, no) {
         // if the no not have two children
         if (no.getLeft() == null || no.getRight() == null) {
+            // get the only node in no or null
             var noAux = no.getLeft() == null ? no.getRight() : no.getLeft();
+            // set the only node in no or null. Does not matter
             if (father.getLeft() == no) {
                 father.setLeft(noAux);
                 return;
@@ -119,6 +132,17 @@ var TreeAVL = /** @class */ (function () {
                 return;
             }
         }
+        var node = this.getNextToRemove(no);
+        no.setId(node.getId());
+        no.setValue(node.getValue());
+        this.removeNodes(no, no.getId());
+    };
+    TreeAVL.prototype.getNextToRemove = function (no) {
+        var node = no.getLeft();
+        while (node.getRight() != null) {
+            node = node.getRight();
+        }
+        return node;
     };
     return TreeAVL;
 }());
@@ -132,5 +156,5 @@ tree.insert(new No(5, "Teste"));
 tree.insert(new No(7, "Teste"));
 tree.insert(new No(5.5, "teste"));
 tree.insert(new No(0, "Teste"));
-tree.remove(1);
+tree.remove(4);
 tree.print();
