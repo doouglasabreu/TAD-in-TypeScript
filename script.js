@@ -2,6 +2,7 @@ var No = /** @class */ (function () {
     function No(id, value) {
         this.id = id;
         this.value = value;
+        this.height = 0;
         this.left = this.right = null;
     }
     // getters and setters methods
@@ -16,6 +17,12 @@ var No = /** @class */ (function () {
     };
     No.prototype.setValue = function (value) {
         this.value = value;
+    };
+    No.prototype.getHeight = function () {
+        return this.height;
+    };
+    No.prototype.setHeight = function (height) {
+        this.height = height;
     };
     No.prototype.getRight = function () {
         return this.right;
@@ -48,27 +55,73 @@ var TreeAVL = /** @class */ (function () {
         console.log(' | ', no.getId());
     };
     TreeAVL.prototype.insert = function (no) {
-        if (this.root == null) {
-            this.root = no;
-            return;
+        this.root = this.insertRecursive(this.root, no);
+    };
+    TreeAVL.prototype.insertRecursive = function (father, no) {
+        if (father == null) {
+            return no;
         }
-        var node = this.root;
-        var prev = null;
-        while (node != null) {
-            prev = node;
-            if (no.getId() <= node.getId()) {
-                node = node.getLeft();
-            }
-            else {
-                node = node.getRight();
-            }
-        }
-        if (no.getId() <= prev.getId()) {
-            prev.setLeft(no);
+        console.log("Inserindo o no " + no.getId());
+        if (no.getId() <= father.getId()) {
+            father.setLeft(this.insertRecursive(father.getLeft(), no));
         }
         else {
-            prev.setRight(no);
+            father.setRight(this.insertRecursive(father.getRight(), no));
         }
+        return this.rotates(father);
+    };
+    TreeAVL.prototype.rotates = function (father) {
+        var heightL = father.getLeft() == null ? 0 : father.getLeft().getHeight() + 1;
+        var heightR = father.getRight() == null ? 0 : father.getRight().getHeight() + 1;
+        father.setHeight(heightL > heightR ? heightL : heightR);
+        // rotate to right
+        if (heightL - heightR == 2) {
+            if (this.getFactor(father.getLeft()) == -1) {
+                father.setLeft(this.rotateLL(father.getLeft()));
+            }
+            var newRoot = this.rotateRR(father);
+            console.log("limpando os height a partir de " + newRoot.getId());
+            this.clearHeights(newRoot);
+            return newRoot;
+        }
+        else if (heightL - heightR == -2) {
+            if (this.getFactor(father.getRight()) == 1) {
+                father.setRight(this.rotateRR(father.getRight()));
+            }
+            var newRoot = this.rotateLL(father);
+            console.log("limpando os height a partir de " + newRoot.getId());
+            this.clearHeights(newRoot);
+            return newRoot;
+        }
+        return father;
+    };
+    TreeAVL.prototype.getFactor = function (node) {
+        var heightL = node.getLeft() == null ? 0 : node.getLeft().getHeight() + 1;
+        var heightR = node.getRight() == null ? 0 : node.getRight().getHeight() + 1;
+        return heightL - heightR;
+    };
+    TreeAVL.prototype.rotateLL = function (no) {
+        console.log("Rotaiconado para a esquerda em " + no.getId());
+        var node = no.getRight();
+        no.setRight(node.getLeft());
+        node.setLeft(no);
+        return node;
+    };
+    TreeAVL.prototype.rotateRR = function (no) {
+        console.log("Rotacionando para a direita em " + no.getId());
+        var node = no.getLeft();
+        no.setLeft(node.getRight());
+        node.setRight(no);
+        return node;
+    };
+    TreeAVL.prototype.clearHeights = function (father) {
+        if (father == null) {
+            return 0;
+        }
+        var heightL = this.clearHeights(father.getLeft());
+        var heightR = this.clearHeights(father.getRight());
+        father.setHeight(heightL > heightR ? heightL : heightR);
+        return father.getHeight() + 1;
     };
     //return false if id not exists in the AVL or true if exists
     TreeAVL.prototype.contains = function (id) {
@@ -91,51 +144,36 @@ var TreeAVL = /** @class */ (function () {
         if (!this.contains(id)) {
             return false;
         }
-        if (id == this.root.getId()) {
-            var no = new No(-1, "RootTemporary");
-            no.setLeft(this.root);
-            this.removeNodes(no, id);
-            this.root = no.getLeft();
-            return;
-        }
-        this.removeNodes(this.root, id);
+        console.log("removendo " + id);
+        this.root = this.removeRecursive(this.root, id);
     };
-    TreeAVL.prototype.removeNodes = function (noRoot, id) {
-        // searching the node father
-        var father = noRoot;
-        var no;
-        while (true) {
-            // is the father?
-            if ((father.getLeft() != null && father.getLeft().getId() == id) || (father.getRight() != null && father.getRight().getId() == id)) {
-                no = (father.getLeft() != null && father.getLeft().getId() == id) ? father.getLeft() : father.getRight();
-                break;
-            }
-            // not is the father. Then continue
-            if (father.getId() >= id) {
-                father = father.getLeft();
-            }
-            else {
-                father = father.getRight();
-            }
+    TreeAVL.prototype.removeRecursive = function (father, id) {
+        if (father == null) {
+            return null;
         }
-        // if the no not have two children
-        if (no.getLeft() == null || no.getRight() == null) {
-            // get the only node in no or null
-            var noAux = no.getLeft() == null ? no.getRight() : no.getLeft();
-            // set the only node in no or null. Does not matter
-            if (father.getLeft() == no) {
-                father.setLeft(noAux);
-                return;
-            }
-            else {
-                father.setRight(noAux);
-                return;
-            }
+        if (father.getId() > id) {
+            father.setLeft(this.removeRecursive(father.getLeft(), id));
+            return this.rotates(father);
         }
-        var node = this.getNextToRemove(no);
-        no.setId(node.getId());
-        no.setValue(node.getValue());
-        this.removeNodes(no, no.getId());
+        else if (father.getId() < id) {
+            father.setRight(this.removeRecursive(father.getRight(), id));
+            return this.rotates(father);
+        }
+        // have none no. getLeft and getRight is null
+        if (father.getLeft() == father.getRight()) {
+            return null;
+        }
+        // have only one no
+        if ((father.getLeft() == null && father.getRight() != null) || (father.getLeft() != null && father.getRight() == null)) {
+            return father.getLeft() == null ? father.getRight() : father.getLeft();
+        }
+        // have two no
+        var newNode = this.getNextToRemove(father);
+        father.setId(newNode.getId());
+        father.setValue(newNode.getValue());
+        // remove again
+        father.setLeft(this.removeRecursive(father.getLeft(), newNode.getId()));
+        return father;
     };
     TreeAVL.prototype.getNextToRemove = function (no) {
         var node = no.getLeft();
@@ -147,14 +185,37 @@ var TreeAVL = /** @class */ (function () {
     return TreeAVL;
 }());
 var tree = new TreeAVL();
-tree.insert(new No(4, "Teste"));
-tree.insert(new No(2, "Teste"));
-tree.insert(new No(1, "Teste"));
-tree.insert(new No(3, "Teste"));
-tree.insert(new No(6, "Teste"));
-tree.insert(new No(5, "Teste"));
+/*
+tree.insert(new No(4, "Teste"))
+tree.insert(new No(9, "Teste"))
+tree.insert(new No(1, "Teste"))
+tree.insert(new No(3, "Teste"))
+tree.insert(new No(2, "Teste"))
+tree.insert(new No(2.5, "Teste"))
+/*
+tree.insert(new No(3.6, "Teste"))
+tree.insert(new No(1.5, "Teste"))
+tree.insert(new No(1, "Teste"))
+tree.insert(new No(4, "Teste"))
+tree.insert(new No(3, "Teste"))
+tree.insert(new No(6, "Teste"))
+tree.insert(new No(5, "Teste"))
+tree.insert(new No(7, "Teste"))
+tree.insert(new No(5.5, "teste"))
+*/ /*
+tree.remove(2)
+tree.insert(new No(10, "Teste"))
+tree.remove(1)
+tree.remove(10)
+tree.remove(2.5)
+*/
 tree.insert(new No(7, "Teste"));
-tree.insert(new No(5.5, "teste"));
-tree.insert(new No(0, "Teste"));
+tree.insert(new No(4, "Teste"));
+tree.insert(new No(9, "Teste"));
+tree.insert(new No(2, "Teste"));
+tree.insert(new No(5, "Teste"));
+tree.insert(new No(8, "Teste"));
+tree.insert(new No(10, "Teste"));
 tree.remove(4);
+console.log("Voltou e vai printar");
 tree.print();
