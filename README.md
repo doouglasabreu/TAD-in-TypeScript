@@ -2,9 +2,13 @@ Para o projeto de Linguagens de Programação, não podemos usar nenhuma estrutu
 Então estou implementando estas para assim usar as que eu implementei.
 
 ==========================AVL==========================
+
 tree = new TreeAVL()
+
 tree.insert(new No(1, "value is any")
+
 tree.remove(4)
+
 print("Contains 3: " + tree.contains(3))
 
 A AVL está com todas as operações de inserir e remove realizando as devidas rotações.
