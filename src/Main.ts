@@ -1,5 +1,6 @@
-/// <reference path="TreeAVL.ts" />
-/// <reference path="ArrayList.ts" />
+//// <reference path="TreeAVL.ts" />
+//// <reference path="ArrayList.ts" />
+/// <reference path="Stack.ts" />
 
 /*
 let tree = new TreeAVL()
@@ -16,7 +17,7 @@ tree.remove(4)
 
 tree.print()
 */
-
+/*
 let array = new ArrayList()
 array.add("primeiro")
 array.add("segundo")
@@ -31,3 +32,14 @@ array.remove("quinto")
 array.remove("antesdetudo")
 array.print()
 console.log(array.lastIndexOf("terceiro"))
+*/
+
+let stack = new Stack()
+stack.push("bart")
+stack.push("hommer")
+stack.push("lisa")
+stack.pop()
+stack.push("megg")
+stack.push("marge")
+stack.print()
+console.log(stack.getSize())

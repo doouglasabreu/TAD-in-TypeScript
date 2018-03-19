@@ -20,13 +20,13 @@ class ArrayList{
         return this.qtd
     }
 
-    private createNo(id:number, value:any):No{
+    private createElement(id:number, value:any):No{
         return new No(id, value)
     }
 
     add(value:any){
         this.qtd += 1
-        let element = this.createNo(this.qtd, value)
+        let element = this.createElement(this.qtd, value)
 
         if(this.first == null){
             this.first = element
@@ -43,7 +43,7 @@ class ArrayList{
 
     addIn(index:number, value:any){
         this.qtd += 1
-        let element = this.createNo(this.qtd, value)
+        let element = this.createElement(this.qtd, value)
 
         if(index == 0){     // first position
             element.setRight(this.first)

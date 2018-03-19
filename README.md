@@ -17,8 +17,8 @@ tree.print()
 
 tree.get(id)
 
-
 A AVL está com todas as operações de inserir e remove realizando as devidas rotações.
+
 
 ==========================ArrayList==========================
 
@@ -44,8 +44,28 @@ array.print()
 
 array.size()
 
-Por baixo dos panos, a arvore usa 'nós' ao invez de elementos. Ela é uma duplamente encadeada. O ponteiro 'left' representa o 'prev' e o ponteiro 'right' representa o 'next'. Respectivamente as funções getters e setters.
+
+==========================Stack==========================
+
+let stack = new Stack()
+
+stack.push("type is any")
+
+stack.getSize()
+
+stack.print()
+
+stack.empty()
+
+stack.peek()
+
+stack.pop()
+
+
+Por baixo dos panos, a lista usa 'nós' ao invez de elementos. Ela é uma duplamente encadeada. O ponteiro 'left' representa o 'prev' e o ponteiro 'right' representa o 'next'. Respectivamente, as funções getters e setters. Também a pilha está usando os 'nós' como seus elementos. E o ponteiro para o elemento abaixo é o 'left'.
 
 A pasta src contem os arquivos TypeScrip e a pasta build contem os arquivos JavaScript compilados pelo TypeScript. O arquivo index.html é onde inserimos o Main.js no html para rodar no navegador.
 
-Para compilar os arquivos: tsc ./src/ArqOrigem.ts --out ./build/ArqDestino.js
+Para compilar os arquivos:
+
+tsc ./src/ArqOrigem.ts --out ./build/ArqDestino.js
