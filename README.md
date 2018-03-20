@@ -62,6 +62,17 @@ stack.peek()
 stack.pop()
 
 
+==========================Graph==========================
+
+let graph = new Graph(isGraph:boolean)  - if 'isGraph' is true, is a graph; if is false, is a digraph
+
+graph.insertEdge("type is any", "type is any")
+
+graph.removeEdge("type is any", "type is any")
+
+graph.print()
+
+
 Por baixo dos panos, a lista usa 'nós' ao invez de elementos. Ela é uma duplamente encadeada. O ponteiro 'left' representa o 'prev' e o ponteiro 'right' representa o 'next'. Respectivamente, as funções getters e setters. Também a pilha está usando os 'nós' como seus elementos. E o ponteiro para o elemento abaixo é o 'left'.
 
 A pasta src contem os arquivos TypeScrip e a pasta build contem os arquivos JavaScript compilados pelo TypeScript. O arquivo index.html é onde inserimos o Main.js no html para rodar no navegador.
