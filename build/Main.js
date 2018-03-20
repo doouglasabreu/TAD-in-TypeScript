@@ -39,66 +39,262 @@ var No = /** @class */ (function () {
     return No;
 }());
 /// <reference path="No.ts" />
-var Stack = /** @class */ (function () {
-    function Stack() {
-        this.top = null;
-        this.size = 0;
+// doubly chained - duplamente encadeada
+var ArrayList = /** @class */ (function () {
+    function ArrayList() {
+        this.qtd = 0;
+        this.first = null;
+        this.last = null;
     }
-    Stack.prototype.createElement = function (value) {
-        return new No(-1, value);
+    ArrayList.prototype.isEmpty = function () {
+        return this.qtd == 0;
     };
-    Stack.prototype.empty = function () {
-        return this.top == null;
+    ArrayList.prototype.size = function () {
+        return this.qtd;
     };
-    // looks the top object without remove
-    Stack.prototype.peek = function () {
-        return this.empty() ? null : this.top.getValue();
+    ArrayList.prototype.createElement = function (id, value) {
+        return new No(id, value);
     };
-    // insert
-    Stack.prototype.push = function (value) {
-        var element = this.createElement(value);
-        element.setLeft(this.top);
-        this.top = element;
-        this.size += 1;
-    };
-    // remove
-    Stack.prototype.pop = function () {
-        if (this.empty()) {
-            return null;
+    ArrayList.prototype.add = function (value) {
+        this.qtd += 1;
+        var element = this.createElement(this.qtd, value);
+        if (this.first == null) {
+            this.first = element;
+            this.last = element;
+            return this.first.getValue();
         }
-        var element = this.top;
-        this.top = element.getLeft(); // top = down
-        this.size -= 1;
+        // in the list, the right is the next; the left is the prev
+        var lastElement = this.last;
+        lastElement.setRight(element); // setNext
+        element.setLeft(lastElement); // setPrev
+        this.last = element;
         return element.getValue();
     };
-    // return index of value or -1 if not exists
-    Stack.prototype.search = function (value) {
-        var pos = this.size;
-        var element = this.top;
+    ArrayList.prototype.addIn = function (index, value) {
+        this.qtd += 1;
+        var element = this.createElement(this.qtd, value);
+        if (index == 0) {
+            element.setRight(this.first);
+            this.first.setLeft(element);
+            this.first = element;
+            return this.first.getValue();
+        }
+        // if index is invalid or the last, insert in the last position
+        if (index >= this.qtd - 1) {
+            element.setLeft(this.last);
+            this.last.setRight(element);
+            this.last = element;
+            return element.getValue();
+        }
+        var i = 1;
+        var no = this.first;
+        while (i < index) {
+            no = no.getRight(); // no = next
+            i += 1;
+        }
+        element.setRight(no.getRight());
+        no.getRight().setLeft(element);
+        no.setRight(element);
+        element.setLeft(no);
+        return element.getValue();
+    };
+    ArrayList.prototype.contains = function (value) {
+        var i = 0;
+        var element = this.first;
         while (element != null) {
             if (element.getValue() == value) {
-                return pos;
+                return true;
             }
-            pos -= 1;
+            else {
+                element = element.getRight();
+            }
+        }
+        return false;
+    };
+    ArrayList.prototype.get = function (index) {
+        if (index < 0 || index >= this.qtd) {
+            return null;
+        }
+        var i = 0;
+        var element = this.first;
+        while (i < index) {
+            element = element.getRight();
+            i += 1;
+        }
+        return element.getValue();
+    };
+    ArrayList.prototype.remove = function (value) {
+        var element = this.first;
+        while (element != null) {
+            if (element.getValue() == value) {
+                break;
+            }
+            element = element.getRight();
+        }
+        if (element == null) {
+            return;
+        }
+        this.qtd -= 1;
+        var last = element.getLeft();
+        // is the first element
+        if (last == null) {
+            this.first = element.getRight();
+            return;
+        }
+        // is the last element
+        if (element == this.last) {
+            last.setRight(null);
+            this.last = last;
+            return;
+        }
+        var next = element.getRight();
+        last.setRight(next);
+        next.setLeft(last);
+    };
+    ArrayList.prototype.print = function () {
+        var element = this.first;
+        while (element != null) {
+            console.log(element.getValue());
+            element = element.getRight();
+        }
+    };
+    ArrayList.prototype.indexOf = function (value) {
+        var i = 0;
+        var element = this.first;
+        while (element != null) {
+            if (element.getValue() == value) {
+                return i;
+            }
+            i += 1;
+            element = element.getRight();
+        }
+        return -1;
+    };
+    ArrayList.prototype.lastIndexOf = function (value) {
+        var i = this.qtd - 1;
+        var element = this.last;
+        while (element != null) {
+            if (element.getValue() == value) {
+                return i;
+            }
+            i -= 1;
             element = element.getLeft();
         }
         return -1;
     };
-    Stack.prototype.getSize = function () {
-        return this.size;
+    return ArrayList;
+}());
+/// <reference path="ArrayList.ts" />
+var Color;
+(function (Color) {
+    Color[Color["White"] = 0] = "White";
+    Color[Color["Black"] = 1] = "Black";
+    Color[Color["Gray"] = 2] = "Gray";
+})(Color || (Color = {}));
+var Vertex = /** @class */ (function () {
+    function Vertex(id) {
+        this.id = id;
+        this.adjacents = new ArrayList();
+    }
+    Vertex.prototype.getId = function () {
+        return this.id;
     };
-    Stack.prototype.print = function () {
-        var element = this.top;
-        while (element != null) {
-            console.log(element.getValue());
-            element = element.getLeft();
+    Vertex.prototype.setId = function (id) {
+        this.id = id;
+    };
+    Vertex.prototype.getCor = function () {
+        return this.color;
+    };
+    Vertex.prototype.setcor = function (cor) {
+        return this.color;
+    };
+    Vertex.prototype.isAdjacent = function (adjacent) {
+        return this.adjacents.contains(adjacent);
+    };
+    Vertex.prototype.setAdjacent = function (adjacent) {
+        if (this.isAdjacent(adjacent)) {
+            return;
+        }
+        this.adjacents.add(adjacent);
+    };
+    Vertex.prototype.removeAdjacent = function (adjacent) {
+        this.adjacents.remove(adjacent);
+    };
+    Vertex.prototype.printAdjacents = function () {
+        var i = 0;
+        console.log(this.id + "::");
+        while (i < this.adjacents.size()) {
+            console.log(this.adjacents.get(i).getId());
+            i += 1;
         }
     };
-    return Stack;
+    return Vertex;
+}());
+/// <reference path="Vertex.ts" />
+var Graph = /** @class */ (function () {
+    function Graph(isGraph) {
+        this.isGraph = isGraph;
+        this.vertexList = new ArrayList();
+        this.qtd = 0;
+    }
+    Graph.prototype.createVertex = function (vertex) {
+        this.qtd += 1;
+        return new Vertex(vertex);
+    };
+    Graph.prototype.vertexById = function (vertex) {
+        var v = this.vertexList.get(0);
+        var i = 0;
+        while (v != null) {
+            if (v.getId() == vertex) {
+                return v;
+            }
+            i += 1;
+            v = this.vertexList.get(i);
+        }
+        return null;
+    };
+    Graph.prototype.insertEdge = function (vertex1, vertex2) {
+        console.log("Procurando pelos vertices: " + vertex1 + " " + vertex2);
+        var vertex11 = this.vertexById(vertex1);
+        var vertex22 = this.vertexById(vertex2);
+        if (vertex11 == null) {
+            console.log("Criando o vertice " + vertex1);
+            vertex11 = this.vertexList.add(this.createVertex(vertex1));
+        }
+        if (vertex22 == null) {
+            console.log("Criando o vertice " + vertex2);
+            vertex22 = this.vertexList.add(this.createVertex(vertex2));
+        }
+        vertex11.setAdjacent(vertex22);
+        if (this.isGraph) {
+            vertex22.setAdjacent(vertex11);
+        }
+    };
+    Graph.prototype.removeEdge = function (vertex1, vertex2) {
+        var vertex11 = this.vertexById(vertex1);
+        var vertex22 = this.vertexById(vertex2);
+        if (vertex11 == null || vertex22 == null) {
+            return;
+        }
+        vertex11.removeAdjacent(vertex22);
+        if (this.isGraph) {
+            vertex22.removeAdjacent(vertex11);
+        }
+    };
+    Graph.prototype.print = function () {
+        var i = 0;
+        while (i < this.qtd) {
+            var vertex = this.vertexList.get(i);
+            vertex.printAdjacents();
+            i += 1;
+        }
+    };
+    return Graph;
 }());
 //// <reference path="TreeAVL.ts" />
 //// <reference path="ArrayList.ts" />
-/// <reference path="Stack.ts" />
+//// <reference path="Stack.ts" />
+/// <reference path="Graph.ts" />
 /*
 let tree = new TreeAVL()
 
@@ -130,12 +326,23 @@ array.remove("antesdetudo")
 array.print()
 console.log(array.lastIndexOf("terceiro"))
 */
-var stack = new Stack();
-stack.push("bart");
-stack.push("hommer");
-stack.push("lisa");
-stack.pop();
-stack.push("megg");
-stack.push("marge");
-stack.print();
-console.log(stack.getSize());
+/*
+let stack = new Stack()
+stack.push("bart")
+stack.push("hommer")
+stack.push("lisa")
+stack.pop()
+stack.push("megg")
+stack.push("marge")
+stack.print()
+console.log(stack.getSize())
+*/
+var graph = new Graph(true);
+graph.insertEdge(3, 4);
+graph.insertEdge(4, 2);
+graph.insertEdge(1, 3);
+graph.insertEdge(4, 5);
+graph.insertEdge(5, 2);
+graph.insertEdge(1, 2);
+graph.removeEdge(3, 4);
+graph.print();

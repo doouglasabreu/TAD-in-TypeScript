@@ -2,8 +2,8 @@
 
 class Stack{
 
-    top: No
-    size: number
+    private top: No
+    private size: number
 
     constructor(){
         this.top = null

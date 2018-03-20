@@ -2,9 +2,9 @@
 // doubly chained - duplamente encadeada
 class ArrayList{
 
-    qtd: number
-    first: No
-    last: No
+    private qtd: number
+    private first: No
+    private last: No
 
     constructor(){
         this.qtd = 0
@@ -31,7 +31,7 @@ class ArrayList{
         if(this.first == null){
             this.first = element
             this.last = element
-            return
+            return this.first.getValue()
         }
 
         // in the list, the right is the next; the left is the prev
@@ -39,6 +39,7 @@ class ArrayList{
         lastElement.setRight(element)   // setNext
         element.setLeft(lastElement)    // setPrev
         this.last = element
+        return element.getValue()
     }
 
     addIn(index:number, value:any){
@@ -49,7 +50,7 @@ class ArrayList{
             element.setRight(this.first)
             this.first.setLeft(element)
             this.first = element
-            return
+            return this.first.getValue()
         }
 
         // if index is invalid or the last, insert in the last position
@@ -57,7 +58,7 @@ class ArrayList{
             element.setLeft(this.last)
             this.last.setRight(element)
             this.last = element
-            return
+            return element.getValue()
         }
 
         let i = 1
@@ -71,12 +72,13 @@ class ArrayList{
         no.getRight().setLeft(element)
         no.setRight(element)
         element.setLeft(no)
+        return element.getValue()
     }
 
     contains(value:any):boolean{
         let i = 0
         let element = this.first
-        while(i < this.qtd){
+        while(element != null){
             if(element.getValue() == value){
                 return true
             } else {
@@ -87,9 +89,9 @@ class ArrayList{
         return false
     }
 
-    get(index:number):number{
-        if(index < 0 || index > this.qtd){
-            return -1
+    get(index:number):any{
+        if(index < 0 || index >= this.qtd){
+            return null
         }
 
         let i = 0
